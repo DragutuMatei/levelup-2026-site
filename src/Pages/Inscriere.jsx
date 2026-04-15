@@ -52,12 +52,48 @@ function Inscriere() {
         }
     };
 
+    /**
+     * Uploads a file directly to Google Drive via a backend-issued resumable URL.
+     * Returns { url, publicId, originalName } or throws on failure.
+     */
+    const uploadCvToDrive = async (file) => {
+        // Step 1: ask backend for a resumable upload URL
+        const { data: { uploadUrl } } = await api.post('/upload-cv', {
+            fileName: file.name,
+            mimeType: file.type || 'application/octet-stream',
+        });
+
+        // Step 2: upload file directly to Google Drive (bypasses Vercel)
+        const uploadRes = await fetch(uploadUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': file.type || 'application/octet-stream' },
+            body: file,
+        });
+
+        if (!uploadRes.ok) {
+            throw new Error(`Upload esuat pentru ${file.name} (status ${uploadRes.status})`);
+        }
+
+        // Step 3: get fileId from Google Drive response
+        const uploadData = await uploadRes.json();
+        const fileId = uploadData.id;
+        if (!fileId) throw new Error(`Nu s-a primit fileId pentru ${file.name}`);
+
+        // Step 4: make the file public via backend
+        const { data: publishData } = await api.post('/publish-cv', { fileId });
+
+        return {
+            url: publishData.url,
+            publicId: publishData.publicId,
+            originalName: file.name,
+        };
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setStatus('submitting');
         setErrorMsg('');
 
-        // Validare
+        // --- Validare câmpuri ---
         const newErrors = {};
         if (!form.email) newErrors.email = 'Email-ul este obligatoriu.';
         if (!form.teamName) newErrors.teamName = 'Numele echipei este obligatoriu.';
@@ -67,46 +103,57 @@ function Inscriere() {
         if (!cv1) newErrors.cv1 = 'Trebuie sa incarci un CV.';
         if (!form.gdprConsent) newErrors.gdprConsent = 'Trebuie sa accepti termenii GDPR.';
 
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
+        // Combina erorile noi cu cele existente (ex: teamName deja luat detectat la blur)
+        const combinedErrors = { ...errors, ...newErrors };
+        if (Object.keys(combinedErrors).length > 0) {
+            setErrors(combinedErrors);
             setErrorMsg('Te rugam sa corectezi erorile marcate.');
             setStatus('error');
-            // Scroll to first error
-            const firstErrorField = Object.keys(newErrors)[0];
-            const element = document.getElementById(firstErrorField) || document.querySelector(`[name="${firstErrorField}"]`);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+            const firstErrorField = Object.keys(combinedErrors)[0];
+            const el = document.getElementById(firstErrorField) || document.querySelector(`[name="${firstErrorField}"]`);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
         }
 
+        setStatus('submitting');
+
         try {
-            // Pregatim FormData pentru Backend (Multipart/form-data)
-            const formData = new FormData();
-            formData.append('emailLead', form.email);
-            formData.append('teamName', form.teamName);
-            formData.append('gdprConsent', form.gdprConsent);
-
-            // Teammate 1 Data
-            formData.append('teammate1', JSON.stringify({
-                name: form.t1Name,
-                email: form.t1Email,
-                phone: form.t1Phone
-            }));
-            formData.append('cv1', cv1);
-
-            // Teammate 2 Data (optional)
-            if (form.t2Name || form.t2Email || form.t2Phone || cv2) {
-                formData.append('teammate2', JSON.stringify({
-                    name: form.t2Name || null,
-                    email: form.t2Email || null,
-                    phone: form.t2Phone || null
-                }));
-                if (cv2) formData.append('cv2', cv2);
+            // --- Pas 1: Upload CV-uri direct la Google Drive ---
+            setErrorMsg('Se incarca CV-urile...');
+            let cv1Data, cv2Data = null;
+            try {
+                const uploads = [uploadCvToDrive(cv1)];
+                if (cv2) uploads.push(uploadCvToDrive(cv2));
+                const results = await Promise.all(uploads);
+                cv1Data = results[0];
+                cv2Data = results[1] || null;
+            } catch (uploadErr) {
+                console.error('Eroare upload CV:', uploadErr);
+                setErrorMsg(`Eroare la incarcarea CV-ului: ${uploadErr.message}`);
+                setStatus('error');
+                return; // STOP — nu continuam cu inscrierea
             }
 
-            await api.post('/inscriere', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
+            // --- Pas 2: Trimite JSON la backend (fara fisiere) ---
+            setErrorMsg('');
+            await api.post('/inscriere', {
+                emailLead: form.email,
+                teamName: form.teamName,
+                gdprConsent: form.gdprConsent,
+                teammate1: {
+                    name: form.t1Name,
+                    email: form.t1Email,
+                    phone: form.t1Phone,
+                    cv: cv1Data,
+                },
+                ...(form.t2Name || form.t2Email || form.t2Phone || cv2Data ? {
+                    teammate2: {
+                        name: form.t2Name || null,
+                        email: form.t2Email || null,
+                        phone: form.t2Phone || null,
+                        cv: cv2Data || null,
+                    }
+                } : {}),
             });
 
             setStatus('success');
@@ -433,10 +480,10 @@ function Inscriere() {
                                 {errors.gdprConsent && <span className="error-text">{errors.gdprConsent}</span>}
                             </div>
 
-                            {/* Error message */}
-                            {status === 'error' && (
-                                <div className="error-msg">
-                                    <span>⚠</span> {errorMsg}
+                            {/* Error / Status message */}
+                            {(status === 'error' || (status === 'submitting' && errorMsg)) && (
+                                <div className={`error-msg ${status === 'submitting' ? 'info-msg' : ''}`}>
+                                    <span>{status === 'submitting' ? '⏳' : '⚠'}</span> {errorMsg}
                                 </div>
                             )}
 
@@ -444,11 +491,11 @@ function Inscriere() {
                             <button
                                 type="submit"
                                 className="submit-btn"
-                                disabled={status === 'submitting'}
+                                disabled={status === 'submitting' || !!errors.teamName}
                             >
                                 {status === 'submitting' ? (
                                     <span className="loading-text">
-                                        SE TRIMITE<span className="dots">...</span>
+                                        {errorMsg.includes('CV') ? 'SE INCARCA CV-URILE' : 'SE TRIMITE'}<span className="dots">...</span>
                                     </span>
                                 ) : (
                                     'TRIMITE INSCRIEREA'
