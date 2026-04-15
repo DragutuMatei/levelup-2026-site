@@ -18,18 +18,17 @@ export const echipaData = [
         role: "Co-Project Manager",
         email: "victor.bara@osfiir.ro",
         photo: victor
+    }, {
+        name: "Burtoi-Giurgea Oana",
+        role: "Coordonator PR",
+        email: "Oana.burtoi@osfiir.ro",
+        photo: oana
     },
     {
         name: "Savin Iulia",
         role: "Coordonator FR",
         email: "iulia.savin@osfiir.ro",
         photo: iulia
-    },
-    {
-        name: "Burtoi-Giurgea Oana",
-        role: "Coordonator PR",
-        email: "Oana.burtoi@osfiir.ro",
-        photo: oana
     },
     {
         name: "Irimioiu Ruxandra",
