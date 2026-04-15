@@ -1,0 +1,669 @@
+@import "../assets/scss/variabiles";
+
+// ============================================================
+// KEYFRAMES
+// ============================================================
+@keyframes form-glow {
+    0%, 100% { box-shadow: 15px 15px 0px $negru; }
+    50%      { box-shadow: 15px 15px 0px $negru, 0 0 25px rgba($galben, 0.2); }
+}
+
+@keyframes success-pop {
+    0%   { transform: scale(0.8); opacity: 0; }
+    60%  { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes checkmark-draw {
+    0%   { transform: scale(0) rotate(-45deg); opacity: 0; }
+    60%  { transform: scale(1.3) rotate(0deg); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes loading-dots {
+    0%, 20%  { content: '.'; }
+    40%      { content: '..'; }
+    60%, 100% { content: '...'; }
+}
+
+@keyframes upload-bounce {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-4px); }
+}
+
+// ============================================================
+// PAGE
+// ============================================================
+.inscriere-page {
+    padding: 120px 5% 100px 5%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    position: relative;
+
+    .page-content {
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+    }
+
+    // ── Header ──
+    .inscriere-header {
+        text-align: center;
+
+        h1 {
+            color: $alb;
+            font-size: 50px;
+            margin-bottom: 15px;
+            text-shadow: 5px 5px 0px $negru;
+        }
+
+        p {
+            color: $albastru_deshis;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .deadline-note {
+            margin-top: 10px;
+            color: $galben;
+            font-size: 14px;
+            border: 2px dashed rgba($galben, 0.4);
+            display: inline-block;
+            padding: 5px 15px;
+            
+            strong {
+                color: $alb;
+            }
+        }
+    }
+
+    // ── Window Common ──
+    .window-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 15px;
+
+        .title {
+            color: $negru;
+            font-size: 14px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+
+            .ctrl {
+                width: 15px;
+                height: 15px;
+                background-color: $negru;
+                display: block;
+
+                &.minimize {
+                    height: 4px;
+                    align-self: flex-end;
+                    margin-bottom: 2px;
+                }
+
+                &.maximize {
+                    border: 3px solid $negru;
+                    background: transparent;
+                    width: 12px;
+                    height: 12px;
+                }
+
+                &.close {
+                    background: transparent;
+                    position: relative;
+                    width: 15px;
+                    height: 15px;
+
+                    &::before,
+                    &::after {
+                        content: '';
+                        position: absolute;
+                        top: 50%;
+                        left: 0;
+                        width: 100%;
+                        height: 4px;
+                        background-color: $negru;
+                    }
+
+                    &::before { transform: translateY(-50%) rotate(45deg); }
+                    &::after  { transform: translateY(-50%) rotate(-45deg); }
+                }
+            }
+        }
+    }
+
+    // ── Info Window ──
+    .inscriere-info {
+        .info-window {
+            background-color: $galben;
+            border: 6px solid $negru;
+            box-shadow: 15px 15px 0 $negru;
+            transition: transform 0.2s ease;
+
+            &:hover {
+                transform: translate(-2px, -2px);
+                box-shadow: 17px 17px 0 $negru;
+            }
+
+            .window-body {
+                background-color: $alb;
+                border: 4px solid $negru;
+                margin: 0 8px 8px 8px;
+                padding: 30px;
+
+                p {
+                    color: $negru;
+                    font-size: 12px;
+                    line-height: 2;
+                    margin-bottom: 15px;
+
+                    &:last-child { margin-bottom: 0; }
+
+                    &.highlight {
+                        background-color: rgba($galben, 0.3);
+                        border-left: 4px solid $galben;
+                        padding: 10px 15px;
+                        margin-top: 10px;
+                    }
+
+                    &.goal {
+                        margin-top: 15px;
+                        font-size: 14px;
+
+                        .goal-label {
+                            color: $albastru;
+                            font-size: 14px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // ── Form Window ──
+    .inscriere-form {
+        .form-window {
+            background-color: $galben;
+            border: 6px solid $negru;
+            box-shadow: 15px 15px 0 $negru;
+            animation: form-glow 4s ease-in-out infinite;
+
+            .window-body {
+                background-color: $alb;
+                border: 4px solid $negru;
+                margin: 0 8px 8px 8px;
+                padding: 30px;
+            }
+        }
+    }
+
+    // ── Form Sections ──
+    .form-section {
+        margin-bottom: 35px;
+        padding-bottom: 35px;
+        border-bottom: 3px dashed rgba($negru, 0.15);
+
+        &:last-of-type {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .section-title {
+            color: $negru;
+            font-size: 14px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            .pixel-arrow {
+                color: $albastru;
+                font-size: 16px;
+            }
+        }
+
+        .section-hint {
+            color: $albastru;
+            font-size: 11px;
+            margin-bottom: 20px;
+            margin-top: -10px;
+            line-height: 1.6;
+        }
+    }
+
+    .optional-section {
+        opacity: 0.85;
+        transition: opacity 0.3s ease;
+
+        &:hover, &:focus-within {
+            opacity: 1;
+        }
+    }
+
+    // ── Form Groups ──
+    .form-group {
+        margin-bottom: 20px;
+
+        label {
+            display: block;
+            color: $negru;
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"] {
+            width: 100%;
+            padding: 14px 16px;
+            font-family: $font;
+            font-size: 12px;
+            color: $negru;
+            background-color: $alb;
+            border: 4px solid $negru;
+            box-shadow: 4px 4px 0px $negru;
+            outline: none;
+            box-sizing: border-box;
+            transition: all 0.15s ease;
+
+            &::placeholder {
+                color: rgba($negru, 0.3);
+            }
+
+            &:focus {
+                border-color: $albastru;
+                box-shadow: 4px 4px 0px $albastru;
+                background-color: rgba($albastru_deshis, 0.05);
+            }
+        }
+
+        &.has-error {
+            label {
+                color: #ff4444;
+            }
+            input {
+                border-color: #ff4444 !important;
+                box-shadow: 4px 4px 0px #ff4444 !important;
+                background-color: rgba(#ff4444, 0.02) !important;
+            }
+            .custom-checkbox {
+                border-color: #ff4444;
+            }
+        }
+    }
+
+    .error-text {
+        color: #ff4444;
+        font-size: 10px;
+        margin-top: 6px;
+        display: block;
+        font-weight: bold;
+        animation: form-glow 2s ease-in-out infinite; // reuse glow for attention
+    }
+
+    // ── File Upload ──
+    .file-upload-area {
+        width: 100%;
+        border: 4px dashed $negru;
+        padding: 25px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background-color: rgba($galben, 0.05);
+        box-sizing: border-box;
+
+        &:hover {
+            border-color: $albastru;
+            background-color: rgba($albastru_deshis, 0.1);
+
+            .upload-icon {
+                animation: upload-bounce 0.5s ease-in-out;
+            }
+        }
+
+        &.has-file {
+            border-style: solid;
+            border-color: $albastru;
+            background-color: rgba($albastru_deshis, 0.1);
+        }
+
+        &.error-area {
+            border-color: #ff4444;
+            background-color: rgba(#ff4444, 0.05);
+        }
+
+        .file-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: $negru;
+            font-size: 11px;
+
+            .upload-icon {
+                font-size: 24px;
+            }
+
+            .file-hint {
+                color: rgba($negru, 0.4);
+                font-size: 10px;
+            }
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            .file-icon {
+                font-size: 20px;
+            }
+
+            .file-name {
+                color: $negru;
+                font-size: 11px;
+                flex: 1;
+                word-break: break-all;
+            }
+
+            .file-remove {
+                background: $negru;
+                color: $alb;
+                border: none;
+                font-family: $font;
+                font-size: 12px;
+                width: 28px;
+                height: 28px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: background 0.15s;
+
+                &:hover {
+                    background: #ff4444;
+                }
+            }
+        }
+    }
+
+    // ── GDPR ──
+    .gdpr-section {
+        .gdpr-text {
+            background-color: rgba($negru, 0.03);
+            border: 3px solid rgba($negru, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+
+            p {
+                color: $negru;
+                font-size: 10px;
+                line-height: 2;
+                margin-bottom: 10px;
+
+                &:last-child { margin-bottom: 0; }
+
+                a {
+                    color: $albastru;
+                    text-decoration: none;
+                    &:hover { text-decoration: underline; }
+                }
+            }
+        }
+
+        .gdpr-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+
+            input[type="checkbox"] {
+                display: none;
+            }
+
+            .custom-checkbox {
+                width: 24px;
+                height: 24px;
+                min-width: 24px;
+                border: 4px solid $negru;
+                background: $alb;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.15s ease;
+                position: relative;
+
+                &::after {
+                    content: '';
+                    display: none;
+                    width: 10px;
+                    height: 10px;
+                    background-color: $albastru;
+                }
+            }
+
+            input[type="checkbox"]:checked + .custom-checkbox {
+                border-color: $albastru;
+                box-shadow: 3px 3px 0px $negru;
+
+                &::after {
+                    display: block;
+                }
+            }
+
+            .checkbox-label {
+                color: $negru;
+                font-size: 12px;
+            }
+        }
+    }
+
+    // ── Error ──
+    .error-msg {
+        background-color: #ff4444;
+        color: $alb;
+        padding: 15px 20px;
+        font-size: 11px;
+        margin-bottom: 20px;
+        border: 4px solid $negru;
+        box-shadow: 4px 4px 0px $negru;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        span {
+            font-size: 16px;
+        }
+    }
+
+    // ── Submit Button ──
+    .submit-btn {
+        width: 100%;
+        padding: 18px 30px;
+        font-family: $font;
+        font-size: 16px;
+        color: $negru;
+        background-color: $galben;
+        border: 4px solid $negru;
+        box-shadow: 6px 6px 0px $negru;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        position: relative;
+        overflow: hidden;
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255,255,255,0.4) 50%,
+                transparent 100%
+            );
+            background-size: 300px 100%;
+            background-repeat: no-repeat;
+            background-position: -300px 0;
+            animation: shimmer 2.5s ease-in-out infinite;
+        }
+
+        &:hover {
+            transform: translate(3px, 3px);
+            box-shadow: 3px 3px 0px $negru;
+        }
+
+        &:active {
+            transform: translate(6px, 6px);
+            box-shadow: 0px 0px 0px $negru;
+        }
+
+        &:disabled {
+            background-color: darken($galben, 10%);
+            cursor: not-allowed;
+            opacity: 0.7;
+
+            &:hover {
+                transform: none;
+                box-shadow: 6px 6px 0px $negru;
+            }
+        }
+
+        .loading-text {
+            .dots {
+                display: inline-block;
+                width: 30px;
+                text-align: left;
+            }
+        }
+    }
+
+    @keyframes shimmer {
+        0%   { background-position: -300px 0; }
+        100% { background-position: 300px 0; }
+    }
+
+    // ── Success Window ──
+    .success-window {
+        background-color: $galben;
+        border: 6px solid $negru;
+        box-shadow: 15px 15px 0 $negru;
+        animation: success-pop 0.5s ease-out forwards;
+        margin-top: 60px;
+
+        .window-body {
+            background-color: $alb;
+            border: 4px solid $negru;
+            margin: 0 8px 8px 8px;
+            padding: 50px 30px;
+            text-align: center;
+
+            .success-icon {
+                font-size: 60px;
+                color: $albastru;
+                margin-bottom: 20px;
+                animation: checkmark-draw 0.6s ease-out 0.3s forwards;
+                opacity: 0;
+                display: inline-block;
+                width: 80px;
+                height: 80px;
+                line-height: 80px;
+                border: 4px solid $albastru;
+                box-shadow: 4px 4px 0px $negru;
+            }
+
+            h2 {
+                color: $negru;
+                font-size: 20px;
+                margin-bottom: 15px;
+            }
+
+            p {
+                color: $negru;
+                font-size: 12px;
+                line-height: 1.8;
+                margin-bottom: 10px;
+            }
+
+            .retry-btn {
+                margin-top: 30px;
+                padding: 12px 24px;
+                font-family: $font;
+                font-size: 12px;
+                color: $negru;
+                background-color: $albastru_deshis;
+                border: 4px solid $negru;
+                box-shadow: 4px 4px 0px $negru;
+                cursor: pointer;
+                transition: all 0.15s ease;
+
+                &:hover {
+                    transform: translate(2px, 2px);
+                    box-shadow: 2px 2px 0px $negru;
+                }
+
+                &:active {
+                    transform: translate(4px, 4px);
+                    box-shadow: 0px 0px 0px $negru;
+                }
+            }
+        }
+    }
+}
+
+// ============================================================
+// RESPONSIVE
+// ============================================================
+@media (max-width: 768px) {
+    .inscriere-page {
+        padding: 100px 4% 60px 4%;
+
+        .inscriere-header h1 {
+            font-size: 34px;
+        }
+
+        .inscriere-info .info-window .window-body,
+        .inscriere-form .form-window .window-body {
+            padding: 20px 15px;
+        }
+
+        .form-section .section-title {
+            font-size: 12px;
+        }
+
+        .submit-btn {
+            font-size: 13px;
+            padding: 15px 20px;
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .inscriere-page {
+        .inscriere-header h1 {
+            font-size: 28px;
+        }
+
+        .window-header .title {
+            font-size: 11px;
+        }
+
+        .form-group input {
+            padding: 12px !important;
+            font-size: 11px !important;
+        }
+
+        .file-upload-area {
+            padding: 15px;
+        }
+    }
+}

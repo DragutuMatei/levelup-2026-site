@@ -1,0 +1,107 @@
+.loading-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background-color: #0C0B13;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.7s ease;
+
+    &.fade-out {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .loading-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+        width: 90%;
+        max-width: 500px;
+    }
+
+    // Titlul START — start.svg
+    .loading-title {
+        width: 100%;
+        max-width: 388px;
+        height: auto;
+        filter: drop-shadow(0 0 12px rgba(255, 245, 130, 0.4));
+    }
+
+    // loading.svg wrapper
+    .loading-svg-wrapper {
+        width: 100%;
+
+        .loading-svg {
+            width: 100%;
+            height: auto;
+        }
+    }
+
+    // Progress Bar
+    .loading-bar-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        width: 350px;
+
+        .loading-bar-track {
+            width: 100%;
+            height: 16px;
+            border: 3px solid #FFF582;
+            background-color: transparent;
+            position: relative;
+            box-shadow: 4px 4px 0 #FFF582;
+
+            .loading-bar-fill {
+                height: 100%;
+                background-color: #FFF582;
+                transition: width 0.1s linear;
+                position: relative;
+
+                // Scanline effect
+                &::after {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    width: 4px;
+                    height: 100%;
+                    background-color: white;
+                    animation: blink-cursor 0.4s step-end infinite;
+                }
+            }
+        }
+
+        .loading-percent {
+            font-family: 'Press Start 2P', monospace, sans-serif;
+            font-size: 14px;
+            color: #FFF582;
+            letter-spacing: 2px;
+        }
+    }
+
+    // Status text
+    .loading-text {
+        font-family: 'Press Start 2P', monospace, sans-serif;
+        font-size: 12px;
+        color: rgba(255, 245, 130, 0.7);
+        letter-spacing: 4px;
+        animation: pulse-text 1s step-end infinite;
+        min-width: 250px;
+        text-align: center;
+    }
+}
+
+@keyframes blink-cursor {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+@keyframes pulse-text {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}

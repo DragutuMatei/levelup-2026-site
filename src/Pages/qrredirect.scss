@@ -1,0 +1,203 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap');
+
+// ── Variabile ─────────────────────────────────────────────
+$accent:   #7c3aed;
+$accent2:  #06b6d4;
+$bg:       #06060f;
+$card-bg:  rgba(255, 255, 255, 0.04);
+$border:   rgba(255, 255, 255, 0.08);
+
+// ── Reset complet pentru pagina de redirect ───────────────
+.qr-redirect {
+  font-family: 'Outfit', sans-serif;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $bg;
+  position: relative;
+  overflow: hidden;
+}
+
+// ── Background animat ─────────────────────────────────────
+.qr-redirect__bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.qr-redirect__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(124, 58, 237, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124, 58, 237, 0.07) 1px, transparent 1px);
+  background-size: 48px 48px;
+  animation: gridDrift 20s linear infinite;
+}
+
+@keyframes gridDrift {
+  0%   { transform: translate(0, 0); }
+  100% { transform: translate(48px, 48px); }
+}
+
+// ── Particule plutitoare ──────────────────────────────────
+.qr-redirect__particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  opacity: 0;
+  animation: floatUp 6s ease-in-out infinite;
+
+  @for $i from 1 through 12 {
+    &--#{$i} {
+      left: random(100) * 1%;
+      bottom: -10px;
+      background: if($i % 2 == 0, $accent, $accent2);
+      width: (2 + $i % 3) * 1px;
+      height: (2 + $i % 3) * 1px;
+      animation-delay: $i * 0.5s;
+      animation-duration: (5 + $i % 4) * 1s;
+    }
+  }
+}
+
+@keyframes floatUp {
+  0%   { opacity: 0; transform: translateY(0) scale(0.5); }
+  20%  { opacity: 0.8; }
+  80%  { opacity: 0.4; }
+  100% { opacity: 0; transform: translateY(-110vh) scale(1.2); }
+}
+
+// ── Card central ──────────────────────────────────────────
+.qr-redirect__card {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  background: $card-bg;
+  border: 1px solid $border;
+  border-radius: 28px;
+  padding: 52px 56px;
+  backdrop-filter: blur(24px);
+  box-shadow:
+    0 0 0 1px $border,
+    0 32px 80px rgba(0, 0, 0, 0.6),
+    0 0 60px rgba(124, 58, 237, 0.12);
+  animation: cardIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @media (max-width: 480px) {
+    padding: 40px 32px;
+    border-radius: 20px;
+    margin: 16px;
+  }
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(32px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+// ── Logo ──────────────────────────────────────────────────
+.qr-redirect__logo {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  line-height: 1;
+}
+
+.qr-redirect__logo-level {
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.04em;
+}
+
+.qr-redirect__logo-up {
+  font-size: 2.6rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, $accent, $accent2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.04em;
+}
+
+.qr-redirect__logo-tag {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.35);
+  margin-left: 6px;
+  letter-spacing: 0.04em;
+}
+
+// ── Spinner cu 3 inele ────────────────────────────────────
+.qr-redirect__spinner {
+  position: relative;
+  width: 72px;
+  height: 72px;
+}
+
+.qr-redirect__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: $accent;
+  animation: spin 1.2s linear infinite;
+
+  &--2 {
+    inset: 10px;
+    border-top-color: $accent2;
+    animation-duration: 0.9s;
+    animation-direction: reverse;
+  }
+
+  &--3 {
+    inset: 20px;
+    border-top-color: rgba(255, 255, 255, 0.4);
+    animation-duration: 1.5s;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// ── Text ──────────────────────────────────────────────────
+.qr-redirect__text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+  text-align: center;
+}
+
+.qr-redirect__sub {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.4);
+  margin: -12px 0 0;
+  text-align: center;
+}
+
+// ── Fallback link ─────────────────────────────────────────
+.qr-redirect__fallback {
+  margin-top: 4px;
+  padding: 10px 24px;
+  border-radius: 50px;
+  background: linear-gradient(135deg, $accent, $accent2);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.2s, transform 0.2s;
+
+  &:hover {
+    opacity: 0.85;
+    transform: translateY(-2px);
+  }
+}

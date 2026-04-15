@@ -1,0 +1,124 @@
+@import './variabiles.scss';
+
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: $font;
+}
+
+body, html{
+overflow-x: hidden;
+}
+
+@keyframes grid-drift {
+    0%   { background-position: 0 0; }
+    100% { background-position: 150px 150px; }
+}
+
+@keyframes pixel-float {
+    0%   { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { transform: translateY(-120px) rotate(720deg); opacity: 0; }
+}
+
+@keyframes pixel-blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.2; }
+}
+
+body{
+    background-color: $albastru;
+    background-image: 
+        linear-gradient(rgba(#4593fb, 0.2) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(#4593fb, 0.2) 1px, transparent 1px);
+    background-size: 30px 30px;
+    animation: grid-drift 8s linear infinite;
+    position: relative;
+}
+
+/* Particule pixel flotante */
+body::before,
+body::after {
+    content: '';
+    position: fixed;
+    width: 6px;
+    height: 6px;
+    background-color: $galben;
+    top: 100%;
+    animation: pixel-float 12s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+    box-shadow:
+        /* coloana 1 */
+        0px 0px 0 0 $galben,
+        /* particule distribuite pe ecran */
+        10vw -20vh  0 0 rgba($albastru_deshis, 0.9),
+        25vw -45vh  0 0 rgba($galben, 0.7),
+        40vw -15vh  0 0 rgba($albastru_deshis, 0.6),
+        55vw -70vh  0 0 rgba($galben, 0.8),
+        70vw -35vh  0 0 rgba($albastru_deshis, 0.5),
+        85vw -55vh  0 0 rgba($galben, 0.9),
+        95vw -80vh  0 0 rgba($albastru_deshis, 0.7),
+        15vw -90vh  0 0 rgba($galben, 0.6),
+        60vw -10vh  0 0 rgba($albastru_deshis, 0.8),
+        30vw -60vh  0 0 rgba($galben, 0.5),
+        75vw -25vh  0 0 rgba($albastru_deshis, 0.9),
+        50vw -85vh  0 0 rgba($galben, 0.7),
+        5vw  -40vh  0 0 rgba($albastru_deshis, 0.6),
+        90vw -65vh  0 0 rgba($galben, 0.8);
+}
+
+body::after {
+    width: 4px;
+    height: 4px;
+    background-color: $albastru_deshis;
+    animation-duration: 18s;
+    animation-delay: -6s;
+    box-shadow:
+        18vw -30vh 0 0 rgba($galben, 0.8),
+        33vw -55vh 0 0 rgba($albastru_deshis, 0.6),
+        48vw -20vh 0 0 rgba($galben, 0.9),
+        63vw -75vh 0 0 rgba($albastru_deshis, 0.7),
+        78vw -40vh 0 0 rgba($galben, 0.5),
+        92vw -60vh 0 0 rgba($albastru_deshis, 0.8),
+        7vw  -85vh 0 0 rgba($galben, 0.6),
+        22vw -15vh 0 0 rgba($albastru_deshis, 0.9),
+        57vw -50vh 0 0 rgba($galben, 0.7),
+        72vw -5vh  0 0 rgba($albastru_deshis, 0.5);
+}
+
+.main-footer {
+    width: 100%;
+    padding: 30px 20px;
+    text-align: center;
+    background-color: transparent;
+    color: $galben;
+    font-size: 14px;
+    z-index: 10;
+    position: relative;
+    border-top: 4px dashed rgba($galben, 0.3);
+    margin-top: 40px;
+}
+
+/* ---- Scroll reveal global ---- */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Global button press effect */
+.btn-press {
+    transition: transform 0.1s ease, box-shadow 0.1s ease !important;
+    &:active {
+        transform: translate(3px, 3px) !important;
+    }
+}
+
+

@@ -1,0 +1,299 @@
+@import "../assets/scss/variabiles";
+
+@keyframes success-pop {
+    0%   { transform: scale(0.8); opacity: 0; }
+    60%  { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.contact-page {
+    padding: 120px 5% 100px 5%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    position: relative;
+
+    .page-content {
+        width: 100%;
+        max-width: 1000px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 60px;
+    }
+
+    .contact-header {
+        text-align: center;
+        h1 {
+            color: $alb;
+            font-size: 60px;
+            margin-bottom: 15px;
+            text-shadow: 5px 5px 0px $negru;
+        }
+        p {
+            color: $albastru_deshis;
+            font-size: 14px;
+        }
+    }
+
+    .contact-container {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        gap: 40px;
+        align-items: start;
+    }
+
+    .form-window {
+        background-color: $galben;
+        border: 6px solid $negru;
+        box-shadow: 15px 15px 0 $negru;
+        
+        .window-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+
+            .title {
+                color: $negru;
+                font-size: 14px;
+                font-weight: bold;
+            }
+
+            .controls {
+                display: flex;
+                gap: 10px;
+
+                .ctrl {
+                    width: 15px;
+                    height: 15px;
+                    background-color: $negru;
+                    display: block;
+
+                    &.minimize {
+                        height: 4px;
+                        align-self: flex-end;
+                        margin-bottom: 2px;
+                    }
+
+                    &.maximize {
+                        border: 3px solid $negru;
+                        background: transparent;
+                        width: 12px;
+                        height: 12px;
+                    }
+
+                    &.close {
+                        background: transparent;
+                        position: relative;
+                        width: 15px;
+                        height: 15px;
+
+                        &::before,
+                        &::after {
+                            content: '';
+                            position: absolute;
+                            top: 50%;
+                            left: 0;
+                            width: 100%;
+                            height: 4px;
+                            background-color: $negru;
+                        }
+
+                        &::before { transform: translateY(-50%) rotate(45deg); }
+                        &::after  { transform: translateY(-50%) rotate(-45deg); }
+                    }
+                }
+            }
+        }
+
+        .window-body {
+            background-color: $alb;
+            border: 4px solid $negru;
+            margin: 0 8px 8px 8px;
+            padding: 30px;
+        }
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+
+        label {
+            display: block;
+            color: $negru;
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 14px 16px;
+            font-family: $font;
+            font-size: 12px;
+            color: $negru;
+            background-color: $alb;
+            border: 4px solid $negru;
+            box-shadow: 4px 4px 0px $negru;
+            outline: none;
+            box-sizing: border-box;
+            transition: all 0.15s ease;
+
+            &::placeholder {
+                color: rgba($negru, 0.3);
+            }
+
+            &:focus {
+                border-color: $albastru;
+                box-shadow: 4px 4px 0px $albastru;
+            }
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+    }
+
+    .error-msg {
+        background-color: #ff4444;
+        color: $alb;
+        padding: 15px;
+        font-size: 11px;
+        margin-bottom: 20px;
+        border: 4px solid $negru;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 15px;
+        font-family: $font;
+        font-size: 14px;
+        color: $negru;
+        background-color: $galben;
+        border: 4px solid $negru;
+        box-shadow: 4px 4px 0px $negru;
+        cursor: pointer;
+        transition: all 0.15s ease;
+
+        &:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px 0px $negru;
+        }
+
+        &:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px 0px $negru;
+        }
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    }
+
+    .contact-info-boxes {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+
+        .info-box {
+            background-color: rgba($alb, 0.05);
+            border: 4px solid rgba($galben, 0.3);
+            padding: 20px;
+            
+            h4 {
+                color: $galben;
+                font-size: 12px;
+                margin-bottom: 10px;
+            }
+
+            p {
+                color: $alb;
+                font-size: 14px;
+                line-height: 1.5;
+
+                a {
+                    color: $albastru_deshis;
+                    text-decoration: none;
+                    &:hover { text-decoration: underline; }
+                }
+            }
+        }
+    }
+
+    .success-window {
+        background-color: $galben;
+        border: 6px solid $negru;
+        box-shadow: 15px 15px 0 $negru;
+        max-width: 600px;
+        margin: 0 auto;
+        animation: success-pop 0.5s ease-out forwards;
+
+        .window-body {
+            background-color: $alb;
+            border: 4px solid $negru;
+            margin: 0 8px 8px 8px;
+            padding: 50px 30px;
+            text-align: center;
+
+            .success-icon {
+                font-size: 50px;
+                color: $albastru;
+                margin-bottom: 20px;
+                width: 70px;
+                height: 70px;
+                line-height: 70px;
+                border: 4px solid $albastru;
+                display: inline-block;
+            }
+
+            h2 {
+                color: $negru;
+                font-size: 20px;
+                margin-bottom: 15px;
+            }
+
+            p {
+                color: $negru;
+                font-size: 12px;
+                margin-bottom: 10px;
+            }
+
+            .retry-btn {
+                margin-top: 30px;
+                padding: 10px 20px;
+                font-family: $font;
+                background-color: $albastru_deshis;
+                border: 4px solid $negru;
+                box-shadow: 4px 4px 0 $negru;
+                cursor: pointer;
+            }
+        }
+    }
+}
+
+@media (max-width: 900px) {
+    .contact-page .contact-container {
+        grid-template-columns: 1fr;
+    }
+
+    .contact-page .contact-info-boxes {
+        flex-direction: row;
+        flex-wrap: wrap;
+        
+        .info-box {
+            flex: 1;
+            min-width: 250px;
+        }
+    }
+}
+
+@media (max-width: 600px) {
+    .contact-page .contact-header h1 {
+        font-size: 40px;
+    }
+}

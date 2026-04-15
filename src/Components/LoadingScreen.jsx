@@ -1,0 +1,79 @@
+import React, { useState, useEffect } from 'react';
+import startSvg from '../assets/images/start.svg';
+import './LoadingScreen.scss';
+
+function LoadingScreen({ onComplete }) {
+    const [progress, setProgress] = useState(0);
+    const [fadeOut, setFadeOut] = useState(false);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setProgress(prev => {
+                if (prev >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        setFadeOut(true);
+                        setTimeout(onComplete, 700);
+                    }, 400);
+                    return 100;
+                }
+                return prev + 2;
+            });
+        }, 40);
+
+        return () => clearInterval(interval);
+    }, [onComplete]);
+
+    return (
+        <div className={`loading-screen ${fadeOut ? 'fade-out' : ''}`}>
+            <div className="loading-inner">
+
+                {/* Titlul START din start.svg */}
+                <img src={startSvg} alt="START" className="loading-title" />
+
+                {/* loading.svg cu fill reveal de la stânga la dreapta */}
+                <div className="loading-svg-wrapper">
+                    <svg
+                        width="455"
+                        height="201"
+                        viewBox="0 0 455 201"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="loading-svg"
+                    >
+                        <defs>
+                            <clipPath id="loading-reveal">
+                                <rect x="0" y="0" width={`${(progress / 100) * 455}`} height="201" />
+                            </clipPath>
+                        </defs>
+
+                        {/* Ghost layer — always visible, dim */}
+                        <path fillRule="evenodd" clipRule="evenodd" d="M12 114H0V189H12V200.5H441.5V189H454.5V114H441.5V103H12V114ZM12 114V189H441.5V114H12ZM24.5 126.5H48V176.5H24.5V126.5ZM61.5 126.5H86.5V176.5H61.5V126.5ZM99 126.5H123V176.5H99V126.5ZM135.5 126.5H159.5V176.5H135.5V126.5ZM173 126.5H197V176.5H173V126.5ZM208.5 126.5H234.5V176.5H208.5V126.5ZM246 126.5H270.5V176.5H246V126.5Z" fill="rgba(255,255,255,0.12)" />
+                        <path d="M53.8976 71.76H12.9056V23.952H26.4416V64.752H53.8976V71.76ZM116.951 64.848H110.423V71.76H76.0549V65.232H69.1429V30.768H75.6709V23.952H110.135V30.48H116.951V64.848ZM103.223 64.848V30.768H82.8709V64.848H103.223ZM169.732 71.76H156.196V58.128H135.844V71.76H121.924V37.584H128.452V30.768H135.364V23.952H156.004V30.48H162.916V37.296H169.732V71.76ZM156.004 51.12V37.296H149.188V30.768H142.18V37.68H135.652V51.12H156.004ZM222.513 58.032H215.985V64.848H209.169V71.76H174.705V23.952H208.785V30.48H215.697V37.296H222.513V58.032ZM208.785 58.032V37.296H201.969V30.768H188.433V64.848H202.257V58.032H208.785ZM273.279 71.76H232.287V65.04H245.823V30.96H232.287V23.952H273.279V30.576H259.743V64.752H273.279V71.76ZM328.076 71.76H314.54V65.232H307.724V58.32H300.908V51.312H294.188V71.76H280.268V23.952H293.804V30.48H300.716V37.296H307.532V44.304H314.252V23.952H328.076V71.76ZM380.857 71.76H346.777V65.232H339.961V58.32H333.049V37.584H339.577V30.768H346.489V23.952H380.857V30.576H353.785V37.392H346.777V57.84H353.497V64.848H367.225V51.504H360.505V44.496H380.857V71.76Z" fill="rgba(255,255,255,0.12)" />
+                        <rect x="395" y="62" width="10" height="10" fill="rgba(255,255,255,0.15)" />
+                        <rect x="412" y="62" width="10" height="10" fill="rgba(255,255,255,0.15)" />
+                        <rect x="429" y="62" width="10" height="10" fill="rgba(255,255,255,0.15)" />
+
+                        {/* Colored reveal layer */}
+                        <g clipPath="url(#loading-reveal)">
+                            <path fillRule="evenodd" clipRule="evenodd" d="M12 114H0V189H12V200.5H441.5V189H454.5V114H441.5V103H12V114ZM12 114V189H441.5V114H12ZM24.5 126.5H48V176.5H24.5V126.5ZM61.5 126.5H86.5V176.5H61.5V126.5ZM99 126.5H123V176.5H99V126.5ZM135.5 126.5H159.5V176.5H135.5V126.5ZM173 126.5H197V176.5H173V126.5ZM208.5 126.5H234.5V176.5H208.5V126.5ZM246 126.5H270.5V176.5H246V126.5Z" fill="#FFF582" />
+                            <path d="M53.8976 71.76H12.9056V23.952H26.4416V64.752H53.8976V71.76ZM116.951 64.848H110.423V71.76H76.0549V65.232H69.1429V30.768H75.6709V23.952H110.135V30.48H116.951V64.848ZM103.223 64.848V30.768H82.8709V64.848H103.223ZM169.732 71.76H156.196V58.128H135.844V71.76H121.924V37.584H128.452V30.768H135.364V23.952H156.004V30.48H162.916V37.296H169.732V71.76ZM156.004 51.12V37.296H149.188V30.768H142.18V37.68H135.652V51.12H156.004ZM222.513 58.032H215.985V64.848H209.169V71.76H174.705V23.952H208.785V30.48H215.697V37.296H222.513V58.032ZM208.785 58.032V37.296H201.969V30.768H188.433V64.848H202.257V58.032H208.785ZM273.279 71.76H232.287V65.04H245.823V30.96H232.287V23.952H273.279V30.576H259.743V64.752H273.279V71.76ZM328.076 71.76H314.54V65.232H307.724V58.32H300.908V51.312H294.188V71.76H280.268V23.952H293.804V30.48H300.716V37.296H307.532V44.304H314.252V23.952H328.076V71.76ZM380.857 71.76H346.777V65.232H339.961V58.32H333.049V37.584H339.577V30.768H346.489V23.952H380.857V30.576H353.785V37.392H346.777V57.84H353.497V64.848H367.225V51.504H360.505V44.496H380.857V71.76Z" fill="#FFF582" />
+                            <rect x="395" y="62" width="10" height="10" fill="#FFF582" />
+                            <rect x="412" y="62" width="10" height="10" fill="#FFF582" />
+                            <rect x="429" y="62" width="10" height="10" fill="#FFF582" />
+                        </g>
+                    </svg>
+                </div>
+
+                <p className="loading-text">
+                    {progress < 30 && "BOOT..."}
+                    {progress >= 30 && progress < 60 && "LOADING ASSETS..."}
+                    {progress >= 60 && progress < 90 && "INITIALIZING..."}
+                    {progress >= 90 && "READY!"}
+                </p>
+            </div>
+        </div>
+    );
+}
+
+export default LoadingScreen;
