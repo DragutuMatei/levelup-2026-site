@@ -4,8 +4,7 @@ import { db } from '../Utils/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import './qrredirect.scss';
 
-const REDIRECT_URL =
-  'https://levelup.osfiir.ro/inscriere';
+const REDIRECT_URL = process.env.REACT_APP_REDIRECT_URL || 'https://levelup.osfiir.ro/inscriere';
 
 const VALID_SOURCES = ['afis', 'rollup', 'flyer'];
 

@@ -38,7 +38,7 @@ function CountdownSection() {
             }
         }, 1000);
         return () => clearInterval(interval);
-    }, []);
+    }, [targetDate]);
 
     return (
         <div className="countdown-wrapper reveal">

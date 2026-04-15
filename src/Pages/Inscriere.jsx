@@ -39,6 +39,19 @@ function Inscriere() {
         }
     };
 
+    const handleTeamNameBlur = async (e) => {
+        const value = e.target.value.trim();
+        if (!value) return;
+        try {
+            const res = await api.get(`/check-team/${encodeURIComponent(value)}`);
+            if (res.data.taken) {
+                setErrors(prev => ({ ...prev, teamName: 'Acest nume de echipa este deja utilizat.' }));
+            }
+        } catch (error) {
+            console.error('Eroare la verificarea numelui echipei:', error);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setStatus('submitting');
@@ -212,6 +225,7 @@ function Inscriere() {
                                         name="teamName"
                                         value={form.teamName}
                                         onChange={handleChange}
+                                        onBlur={handleTeamNameBlur}
                                         placeholder="Numele echipei tale"
                                     />
                                     {errors.teamName && <span className="error-text">{errors.teamName}</span>}
