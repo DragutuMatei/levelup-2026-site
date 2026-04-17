@@ -156,6 +156,7 @@
 
             .member-email {
                 margin-top: 15px;
+                word-break: break-all;
 
                 a {
                     color: $negru;
@@ -209,26 +210,28 @@
         }
 
         .echipa-grid {
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            max-width: 350px;
+            margin: 0 auto;
 
             .member-card:nth-child(7) {
-                grid-column: 1 / -1; // full width pe telefon
-                max-width: 200px;
-                margin: 0 auto;
+                grid-column: auto;
+                max-width: 100%;
+                margin: 0;
             }
         }
 
         .member-card {
             .member-info {
-                padding: 12px;
+                padding: 15px;
 
                 h3 {
-                    font-size: 14px;
+                    font-size: 16px;
                 }
 
                 .member-role {
-                    font-size: 10px;
+                    font-size: 11px;
                 }
             }
         }
