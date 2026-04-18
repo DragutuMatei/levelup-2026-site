@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import api from "../Utils/api";
 import "./minigame.scss";
 
-const NUM_ITEMS = 30;
+const NUM_ITEMS = 3;
 const TEXT_WIDTH = 100;
 const TEXT_HEIGHT = 30;
 const SQUARE_PADDING = 6;
@@ -125,6 +125,42 @@ export default function MiniGame() {
       if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
     };
   }, []);
+
+  // Anti-cheat protections
+  useEffect(() => {
+    if (gameState !== "playing") return;
+
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = "Daca iesi din pagina vei pierde progresul curent!";
+      return e.returnValue;
+    };
+
+    const handleContextMenu = (e) => {
+      e.preventDefault();
+    };
+
+    const handleKeyDown = (e) => {
+      // Prevent F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
+      if (
+        e.key === "F12" ||
+        (e.ctrlKey && e.shiftKey && (e.key.toLowerCase() === "i" || e.key.toLowerCase() === "j" || e.key.toLowerCase() === "c")) ||
+        (e.ctrlKey && e.key.toLowerCase() === "u")
+      ) {
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    document.addEventListener("contextmenu", handleContextMenu);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("contextmenu", handleContextMenu);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [gameState]);
 
   const saveScoreAndFinish = async (timeElapsed) => {
     if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
@@ -345,22 +381,6 @@ export default function MiniGame() {
               }}
             >
               {item.text}
-              {isSelected && (
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelected(selected.filter((i) => i !== item.id));
-                  }}
-                  style={{
-                    marginLeft: 8,
-                    color: "red",
-                    fontWeight: "bold",
-                    cursor: "pointer",
-                  }}
-                >
-                  X
-                </span>
-              )}
             </div>
 
             <div
