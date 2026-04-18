@@ -263,6 +263,15 @@ export default function MiniGame() {
       <div className="minigame-page">
         <div className="centered-box leaderboard-box" style={{ position: "relative" }}>
           <h1 className="glitch-text">CLASAMENT</h1>
+          
+          <div style={{ marginBottom: "1.5rem", fontSize: "0.9rem", color: "#bbb", textAlign: "left", background: "rgba(0,0,0,0.3)", padding: "15px", borderRadius: "8px", border: "1px dashed #9DD6FF" }}>
+            <h3 style={{ color: "#9DD6FF", marginBottom: "8px", fontSize: "1rem", textTransform: "uppercase" }}>Cum se joaca?</h3>
+            <ul style={{ paddingLeft: "20px", margin: 0, lineHeight: "1.4" }}> 
+              <li style={{ marginBottom: "5px" }}>Gaseste link-urile ascunse si apasa pe ele <strong>in ordine</strong>, de la 1 la 30.</li>
+              <li>Ai la dispozitie <strong>180 de secunde</strong> pentru a intra in clasament!</li>
+            </ul>
+          </div>
+
           {isSubmitting ? (
             <p>Se salveaza scorul...</p>
           ) : (
