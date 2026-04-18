@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import api from "../Utils/api";
 import "./minigame.scss";
 
-const NUM_ITEMS = 3;
+const NUM_ITEMS = 30;
 const TEXT_WIDTH = 100;
 const TEXT_HEIGHT = 30;
 const SQUARE_PADDING = 6;
