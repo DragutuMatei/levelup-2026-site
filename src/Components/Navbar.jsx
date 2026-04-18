@@ -64,6 +64,10 @@ function Navbar() {
                 </div>
 
                 <div className="link">
+                    <Link to="/minigame" onClick={closeAll}>Mini-Game</Link>
+                </div>
+
+                <div className="link">
                     <Link to="/inscriere" onClick={closeAll} className="btn-press">Inscriere</Link>
                 </div>
 

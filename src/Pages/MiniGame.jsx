@@ -1,0 +1,385 @@
+import React, { useEffect, useRef, useState } from "react";
+import api from "../Utils/api";
+import "./minigame.scss";
+
+const NUM_ITEMS = 30;
+const TEXT_WIDTH = 100;
+const TEXT_HEIGHT = 30;
+const SQUARE_PADDING = 6;
+const TIMER_SECONDS = 180;
+
+function getRandomPosition(existingRects) {
+  const maxAttempts = 1000;
+  const width = TEXT_WIDTH + SQUARE_PADDING * 2;
+  const height = TEXT_HEIGHT + SQUARE_PADDING * 2;
+  const NAVBAR_HEIGHT = 100;
+  const FOOTER_HEIGHT = 100;
+  const HUD_WIDTH = 250;
+  const HUD_HEIGHT_FROM_MNT = 150;
+
+  for (let i = 0; i < maxAttempts; i++) {
+    const minY = NAVBAR_HEIGHT;
+    const maxY = window.innerHeight - FOOTER_HEIGHT - height;
+
+    if (maxY <= minY) return null;
+
+    const x = Math.floor(Math.random() * (window.innerWidth - width));
+    const y = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
+
+    if (x < HUD_WIDTH && y < NAVBAR_HEIGHT + HUD_HEIGHT_FROM_MNT) {
+      continue;
+    }
+
+    const newRect = { x, y, width: TEXT_WIDTH, height: TEXT_HEIGHT };
+
+    const overlaps = existingRects.some((rect) => {
+      return !(
+        x + width < rect.x ||
+        x > rect.x + rect.width + SQUARE_PADDING * 2 ||
+        y + height < rect.y ||
+        y > rect.y + rect.height + SQUARE_PADDING * 2
+      );
+    });
+
+    if (!overlaps) return newRect;
+  }
+
+  return null;
+}
+
+export default function MiniGame() {
+  const [gameState, setGameState] = useState("leaderboard");  
+  const [showNamePopup, setShowNamePopup] = useState(false);
+  const [playerName, setPlayerName] = useState("");
+  const [items, setItems] = useState([]);
+  const [selected, setSelected] = useState([]);
+  const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const dragRef = useRef(null);
+  const offset = useRef({ x: 0, y: 0 });
+  const timerIntervalRef = useRef(null);
+
+  const startGame = () => {
+    if (!playerName.trim()) {
+      alert("Te rugam sa introduci un nume!");
+      return;
+    }
+    setShowNamePopup(false);
+    setGameState("playing");
+    initializeBoard();
+  };
+
+  const initializeBoard = () => {
+    const rects = [];
+    const newItems = [];
+
+    for (let i = 0; i < NUM_ITEMS; i++) {
+      const pos = getRandomPosition(rects);
+      if (pos) {
+        rects.push(pos);
+        newItems.push({
+          id: i,
+          text: `Link ${i + 1}`,
+          text_x: pos.x,
+          text_y: pos.y,
+          x: pos.x,
+          y: pos.y,
+        });
+      }
+    }
+
+    setItems(newItems);
+    setSelected([]);
+    setTimeLeft(TIMER_SECONDS);
+
+    if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+    timerIntervalRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerIntervalRef.current);
+          alert("A expirat timpul!");
+          setGameState("leaderboard");
+          return TIMER_SECONDS;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const fetchLeaderboard = async () => {
+    try {
+      const res = await api.get("/leaderboard");
+      if (res.data.status === "success") {
+        setLeaderboard(res.data.data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch leaderboard", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchLeaderboard();
+    return () => {
+      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+    };
+  }, []);
+
+  const saveScoreAndFinish = async (timeElapsed) => {
+    if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+    setIsSubmitting(true);
+    setGameState("leaderboard");
+    
+    try {
+      await api.post("/leaderboard", {
+        name: playerName,
+        time: timeElapsed,
+      });
+    } catch (err) {
+      console.error("Failed to save score", err);
+    }
+    
+    setIsSubmitting(false);
+    fetchLeaderboard();
+  };
+
+  const onMouseDown = (e, id) => {
+    dragRef.current = id;
+    const item = items.find((i) => i.id === id);
+    offset.current = {
+      x: e.clientX - item.x,
+      y: e.clientY - item.y,
+    };
+  };
+
+  const onMouseMove = (e) => {
+    if (dragRef.current === null) return;
+
+    let newX = e.clientX - offset.current.x;
+    let newY = e.clientY - offset.current.y;
+
+    const w = TEXT_WIDTH + SQUARE_PADDING * 2;
+    const h = TEXT_HEIGHT + SQUARE_PADDING * 2;
+    const NAVBAR_HEIGHT = 100;
+    const FOOTER_HEIGHT = 100;
+    const HUD_WIDTH = 250;
+    const HUD_HEIGHT_FROM_MNT = 150;
+
+    newX = Math.max(0, Math.min(newX, window.innerWidth - w));
+    newY = Math.max(NAVBAR_HEIGHT, Math.min(newY, window.innerHeight - FOOTER_HEIGHT - h));
+
+    if (newX < HUD_WIDTH && newY < NAVBAR_HEIGHT + HUD_HEIGHT_FROM_MNT) {
+      return; 
+    }
+
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === dragRef.current
+          ? {
+              ...item,
+              x: newX,
+              y: newY,
+            }
+          : item
+      )
+    );
+  };
+
+  const onMouseUp = () => {
+    dragRef.current = null;
+  };
+
+  const handleTextClick = (id) => {
+    const index = selected.indexOf(id);
+    if (index >= 0) {
+      // Deselect
+      setSelected(selected.filter((i) => i !== id));
+    } else {
+      // Select only if it's the next in order
+      if (id === selected.length) {
+        const newSelected = [...selected, id];
+        setSelected(newSelected);
+        if (newSelected.length === NUM_ITEMS) {
+          const timeElapsed = TIMER_SECONDS - timeLeft;
+          saveScoreAndFinish(timeElapsed);
+        }
+      }
+    }
+  };
+
+  const handleReset = async () => {
+    const pwd = prompt("Introdu parola pentru resetare:");
+    if (!pwd) return;
+    try {
+      const res = await api.post("/leaderboard/reset", { password: pwd });
+      if (res.data.status === "success") {
+        alert("Leaderboard resetat cu succes!");
+        fetchLeaderboard();
+      }
+    } catch (err) {
+      alert("Eroare la resetare: " + (err.response?.data?.message || err.message));
+    }
+  };
+
+  if (gameState === "leaderboard") {
+    return (
+      <div className="minigame-page">
+        <div className="centered-box leaderboard-box" style={{ position: "relative" }}>
+          <h1 className="glitch-text">CLASAMENT</h1>
+          {isSubmitting ? (
+            <p>Se salveaza scorul...</p>
+          ) : (
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Loc</th>
+                    <th>Nume</th>
+                    <th>Timp (s)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {leaderboard.length === 0 ? (
+                    <tr>
+                      <td colSpan="3" style={{ textAlign: "center" }}>
+                        Nu exista scoruri inca.
+                      </td>
+                    </tr>
+                  ) : (
+                    leaderboard.map((entry, idx) => (
+                      <tr key={entry.id || idx}>
+                        <td>{idx + 1}</td>
+                        <td>{entry.name}</td>
+                        <td>{entry.time}s</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <div style={{ marginTop: "20px", display: "flex", gap: "10px", justifyContent: "center", flexWrap: "wrap" }}>
+            <button
+              className="primary-btn"
+              onClick={() => setShowNamePopup(true)}
+            >
+              PLAY
+            </button>
+            <button
+              className="secondary-btn"
+              onClick={handleReset}
+            >
+              RESETEAZA LEADERBOARD
+            </button>
+          </div>
+
+          {showNamePopup && (
+            <div style={{
+              position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+              background: "rgba(12, 11, 19, 0.95)", display: "flex", flexDirection: "column",
+              justifyContent: "center", alignItems: "center", borderRadius: "8px", zIndex: 100
+            }}>
+              <h2 style={{ color: "#9DD6FF", marginBottom: "1rem" }}>Introdu Numele</h2>
+              <div className="input-group" style={{ marginBottom: "1rem" }}>
+                <input
+                  type="text"
+                  placeholder="Numele tau"
+                  value={playerName}
+                  onChange={(e) => setPlayerName(e.target.value)}
+                  maxLength={20}
+                  onKeyDown={(e) => e.key === "Enter" && startGame()}
+                />
+              </div>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <button className="primary-btn" onClick={startGame}>START</button>
+                <button className="secondary-btn" onClick={() => setShowNamePopup(false)}>ANULEAZA</button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="minigame-play-area"
+      onMouseMove={onMouseMove}
+      onMouseUp={onMouseUp}
+      onMouseLeave={onMouseUp}
+      style={{
+        width: "100%",
+        height: "100vh",
+        position: "relative",
+        overflow: "hidden",
+        backgroundColor: "#0449AA",
+      }}
+    >
+      <div className="game-hud">
+        <div className="time-display">Timp ramas: {timeLeft}s</div>
+        <div className="progress-display">Progres: {selected.length} / {NUM_ITEMS}</div>
+      </div>
+
+      {items.map((item) => {
+        const isSelected = selected.includes(item.id);
+        return (
+          <React.Fragment key={item.id}>
+            <div
+              onClick={() => handleTextClick(item.id)}
+              style={{
+                position: "absolute",
+                left: item.text_x + SQUARE_PADDING,
+                top: item.text_y + SQUARE_PADDING + 5,
+                width: TEXT_WIDTH,
+                height: TEXT_HEIGHT,
+                textAlign: "center",
+                fontSize: "14px",
+                color: isSelected ? "#0f0" : "white",
+                backgroundColor: isSelected ? "#093" : "transparent",
+                border: isSelected ? "1px solid #0f0" : "none",
+                borderRadius: "4px",
+                lineHeight: `${TEXT_HEIGHT}px`,
+                zIndex: 1,
+                cursor: "pointer",
+              }}
+            >
+              {item.text}
+              {isSelected && (
+                <span
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelected(selected.filter((i) => i !== item.id));
+                  }}
+                  style={{
+                    marginLeft: 8,
+                    color: "red",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                  }}
+                >
+                  X
+                </span>
+              )}
+            </div>
+
+            <div
+              onMouseDown={(e) => onMouseDown(e, item.id)}
+              style={{
+                position: "absolute",
+                left: item.x,
+                top: item.y,
+                width: TEXT_WIDTH + SQUARE_PADDING * 2,
+                height: TEXT_HEIGHT + SQUARE_PADDING * 2,
+                background: "rgba(20, 73, 171, 1)",   
+                cursor: "grab",
+                borderRadius: 4,
+                zIndex: 10,
+              }}
+            />
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}

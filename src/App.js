@@ -7,6 +7,7 @@ import Inscriere from './Pages/Inscriere';
 import About from './Pages/About';
 import Contact from './Pages/Contact';
 import QRRedirect from './Pages/QRRedirect';
+import MiniGame from './Pages/MiniGame';
 import LoadingScreen from './Components/LoadingScreen';
 import './assets/scss/base.scss';
 import Navbar from './Components/Navbar';
@@ -81,6 +82,7 @@ function AppShell({ loading, setLoading }) {
         <Route path='/about' element={<About />} />
         <Route path='/contact' element={<Contact />} />
         <Route path='/inscriere' element={<Inscriere />} />
+        <Route path='/minigame' element={<MiniGame />} />
         <Route path='/qr/:source' element={<QRRedirect />} />
         
         {/* Admin Routes */}
