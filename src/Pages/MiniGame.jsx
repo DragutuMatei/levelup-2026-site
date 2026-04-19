@@ -2,11 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import api from "../Utils/api";
 import "./minigame.scss";
 
-const NUM_ITEMS = 30;
 const TEXT_WIDTH = 100;
 const TEXT_HEIGHT = 30;
 const SQUARE_PADDING = 6;
-const TIMER_SECONDS = 180;
 
 function getRandomPosition(existingRects) {
   const maxAttempts = 1000;
@@ -53,15 +51,17 @@ export default function MiniGame() {
   const [playerName, setPlayerName] = useState("");
   const [items, setItems] = useState([]);
   const [selected, setSelected] = useState([]);
-  const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
+  const [timeLeft, setTimeLeft] = useState(0);
   const [leaderboard, setLeaderboard] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [config, setConfig] = useState(null);
 
   const dragRef = useRef(null);
   const offset = useRef({ x: 0, y: 0 });
   const timerIntervalRef = useRef(null);
 
   const startGame = () => {
+    if (!config) return;
     if (!playerName.trim()) {
       alert("Te rugam sa introduci un nume!");
       return;
@@ -72,6 +72,10 @@ export default function MiniGame() {
   };
 
   const initializeBoard = () => {
+    if (!config) return;
+    const NUM_ITEMS = config.NUM_ITEMS || 30;
+    const TIMER = config.TIMER_SECONDS || 180;
+
     const rects = [];
     const newItems = [];
 
@@ -92,7 +96,7 @@ export default function MiniGame() {
 
     setItems(newItems);
     setSelected([]);
-    setTimeLeft(TIMER_SECONDS);
+    setTimeLeft(TIMER);
 
     if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
     timerIntervalRef.current = setInterval(() => {
@@ -101,26 +105,32 @@ export default function MiniGame() {
           clearInterval(timerIntervalRef.current);
           alert("A expirat timpul!");
           setGameState("leaderboard");
-          return TIMER_SECONDS;
+          return TIMER;
         }
         return prev - 1;
       });
     }, 1000);
   };
 
-  const fetchLeaderboard = async () => {
+  const fetchLeaderboardAndConfig = async () => {
     try {
-      const res = await api.get("/leaderboard");
-      if (res.data.status === "success") {
-        setLeaderboard(res.data.data);
+      const [ldbRes, cfgRes] = await Promise.all([
+        api.get("/leaderboard"),
+        api.get("/leaderboard/config")
+      ]);
+      if (ldbRes.data.status === "success") {
+        setLeaderboard(ldbRes.data.data);
+      }
+      if (cfgRes.data.status === "success") {
+        setConfig(cfgRes.data.data);
       }
     } catch (err) {
-      console.error("Failed to fetch leaderboard", err);
+      console.error("Failed to fetch data", err);
     }
   };
 
   useEffect(() => {
-    fetchLeaderboard();
+    fetchLeaderboardAndConfig();
     return () => {
       if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
     };
@@ -177,7 +187,7 @@ export default function MiniGame() {
     }
     
     setIsSubmitting(false);
-    fetchLeaderboard();
+    fetchLeaderboardAndConfig();
   };
 
   const onMouseDown = (e, id) => {
@@ -236,8 +246,8 @@ export default function MiniGame() {
       if (id === selected.length) {
         const newSelected = [...selected, id];
         setSelected(newSelected);
-        if (newSelected.length === NUM_ITEMS) {
-          const timeElapsed = TIMER_SECONDS - timeLeft;
+        if (newSelected.length === (config?.NUM_ITEMS || 30)) {
+          const timeElapsed = (config?.TIMER_SECONDS || 180) - timeLeft;
           saveScoreAndFinish(timeElapsed);
         }
       }
@@ -251,7 +261,7 @@ export default function MiniGame() {
       const res = await api.post("/leaderboard/reset", { password: pwd });
       if (res.data.status === "success") {
         alert("Leaderboard resetat cu succes!");
-        fetchLeaderboard();
+        fetchLeaderboardAndConfig();
       }
     } catch (err) {
       alert("Eroare la resetare: " + (err.response?.data?.message || err.message));
@@ -267,8 +277,8 @@ export default function MiniGame() {
           <div style={{ marginBottom: "1.5rem", fontSize: "0.9rem", color: "#bbb", textAlign: "left", background: "rgba(0,0,0,0.3)", padding: "15px", borderRadius: "8px", border: "1px dashed #9DD6FF" }}>
             <h3 style={{ color: "#9DD6FF", marginBottom: "8px", fontSize: "1rem", textTransform: "uppercase" }}>Cum se joaca?</h3>
             <ul style={{ paddingLeft: "20px", margin: 0, lineHeight: "1.4" }}> 
-              <li style={{ marginBottom: "5px" }}>Gaseste link-urile ascunse si apasa pe ele <strong>in ordine</strong>, de la 1 la 30.</li>
-              <li>Ai la dispozitie <strong>180 de secunde</strong> pentru a intra in clasament!</li>
+              <li style={{ marginBottom: "5px" }}>Gaseste link-urile ascunse si apasa pe ele <strong>in ordine</strong>, de la 1 la {config?.NUM_ITEMS || 30}.</li>
+              <li>Ai la dispozitie <strong>{config?.TIMER_SECONDS || 180} de secunde</strong> pentru a intra in clasament!</li>
             </ul>
           </div>
 
@@ -363,7 +373,7 @@ export default function MiniGame() {
     >
       <div className="game-hud">
         <div className="time-display">Timp ramas: {timeLeft}s</div>
-        <div className="progress-display">Progres: {selected.length} / {NUM_ITEMS}</div>
+        <div className="progress-display">Progres: {selected.length} / {config?.NUM_ITEMS || 30}</div>
       </div>
 
       {items.map((item) => {
