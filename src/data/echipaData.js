@@ -20,19 +20,19 @@ export const echipaData = [
         photo: victor
     }, {
         name: "Burtoi-Giurgea Oana",
-        role: "Coordonator PR",
+        role: "Responsabil PR",
         email: "Oana.burtoi@osfiir.ro",
         photo: oana
     },
     {
         name: "Savin Iulia",
-        role: "Coordonator FR",
+        role: "Responsabil FR",
         email: "iulia.savin@osfiir.ro",
         photo: iulia
     },
     {
         name: "Irimioiu Ruxandra",
-        role: "Coordonator HR",
+        role: "Responsabil HR",
         email: "ruxandra.irimioiu@osfiir.ro",
         photo: ruxi
     },
@@ -44,7 +44,7 @@ export const echipaData = [
     },
     {
         name: "Antohi Natalia Petronela",
-        role: "Coordonator Vocational",
+        role: "Responsabil Vocational",
         email: "petronela.antohi@osfiir.ro",
         photo: nati
     }

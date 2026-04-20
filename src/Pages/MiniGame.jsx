@@ -55,20 +55,31 @@ export default function MiniGame() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [config, setConfig] = useState(null);
+  const [sessionToken, setSessionToken] = useState(null);
 
   const dragRef = useRef(null);
   const offset = useRef({ x: 0, y: 0 });
   const timerIntervalRef = useRef(null);
 
-  const startGame = () => {
+  const startGame = async () => {
     if (!config) return;
     if (!playerName.trim()) {
       alert("Te rugam sa introduci un nume!");
       return;
     }
-    setShowNamePopup(false);
-    setGameState("playing");
-    initializeBoard();
+    try {
+      // Request a server-side session token (anti-cheat: server tracks start time)
+      const res = await api.post("/leaderboard/start");
+      if (res.data.status === "success") {
+        setSessionToken(res.data.sessionToken);
+        setShowNamePopup(false);
+        setGameState("playing");
+        initializeBoard();
+      }
+    } catch (err) {
+      console.error("Failed to start game session", err);
+      alert("Eroare la pornirea jocului. Incearca din nou.");
+    }
   };
 
   const initializeBoard = () => {
@@ -172,7 +183,7 @@ export default function MiniGame() {
     };
   }, [gameState]);
 
-  const saveScoreAndFinish = async (timeElapsed) => {
+  const saveScoreAndFinish = async () => {
     if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
     setIsSubmitting(true);
     setGameState("leaderboard");
@@ -180,12 +191,13 @@ export default function MiniGame() {
     try {
       await api.post("/leaderboard", {
         name: playerName,
-        time: timeElapsed,
+        sessionToken: sessionToken,
       });
     } catch (err) {
       console.error("Failed to save score", err);
     }
     
+    setSessionToken(null);
     setIsSubmitting(false);
     fetchLeaderboardAndConfig();
   };
@@ -236,21 +248,28 @@ export default function MiniGame() {
     dragRef.current = null;
   };
 
-  const handleTextClick = (id) => {
-    const index = selected.indexOf(id);
-    if (index >= 0) {
-      // Deselect
-      setSelected(selected.filter((i) => i !== id));
-    } else {
-      // Select only if it's the next in order
-      if (id === selected.length) {
+  const handleTextClick = async (id) => {
+    // Only allow clicking the next item in order (no deselect — server tracks order)
+    if (id !== selected.length) return;
+    if (selected.includes(id)) return;
+
+    try {
+      // Validate click with server
+      const res = await api.post("/leaderboard/click", {
+        sessionToken: sessionToken,
+        itemId: id,
+      });
+
+      if (res.data.status === "success") {
         const newSelected = [...selected, id];
         setSelected(newSelected);
-        if (newSelected.length === (config?.NUM_ITEMS || 30)) {
-          const timeElapsed = (config?.TIMER_SECONDS || 180) - timeLeft;
-          saveScoreAndFinish(timeElapsed);
+
+        if (res.data.completed) {
+          saveScoreAndFinish();
         }
       }
+    } catch (err) {
+      console.error("Click validation failed", err);
     }
   };
 
