@@ -55,7 +55,6 @@ export default function MiniGame() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [config, setConfig] = useState(null);
-  const [sessionToken, setSessionToken] = useState(null);
 
   const dragRef = useRef(null);
   const offset = useRef({ x: 0, y: 0 });
@@ -71,7 +70,6 @@ export default function MiniGame() {
       // Request a server-side session token (anti-cheat: server tracks start time)
       const res = await api.post("/leaderboard/start");
       if (res.data.status === "success") {
-        setSessionToken(res.data.sessionToken);
         setShowNamePopup(false);
         setGameState("playing");
         initializeBoard();
@@ -191,13 +189,11 @@ export default function MiniGame() {
     try {
       await api.post("/leaderboard", {
         name: playerName,
-        sessionToken: sessionToken,
       });
     } catch (err) {
       console.error("Failed to save score", err);
     }
     
-    setSessionToken(null);
     setIsSubmitting(false);
     fetchLeaderboardAndConfig();
   };
@@ -256,7 +252,6 @@ export default function MiniGame() {
     try {
       // Validate click with server
       const res = await api.post("/leaderboard/click", {
-        sessionToken: sessionToken,
         itemId: id,
       });
 
