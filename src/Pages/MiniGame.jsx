@@ -244,7 +244,16 @@ export default function MiniGame() {
     dragRef.current = null;
   };
 
-  const handleTextClick = async (id) => {
+  const handleTextClick = async (e, id) => {
+    // Anti-cheat: prevent automated element.click() from JS console scripts
+    if (!e.isTrusted) return;
+
+    // Anti-cheat: prevent CSS bots that hide the square `display: none` without dragging
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+    const hasMoved = Math.abs(item.x - item.text_x) > 20 || Math.abs(item.y - item.text_y) > 20;
+    if (!hasMoved) return;
+
     // Only allow clicking the next item in order (no deselect — server tracks order)
     if (id !== selected.length) return;
     if (selected.includes(id)) return;
@@ -264,7 +273,7 @@ export default function MiniGame() {
         }
       }
     } catch (err) {
-      console.error("Click validation failed", err);
+      console.error("Click validation failed", err.response?.data || err.message);
     }
   };
 
@@ -395,7 +404,7 @@ export default function MiniGame() {
         return (
           <React.Fragment key={item.id}>
             <div
-              onClick={() => handleTextClick(item.id)}
+              onClick={(e) => handleTextClick(e, item.id)}
               style={{
                 position: "absolute",
                 left: item.text_x + SQUARE_PADDING,
@@ -413,7 +422,8 @@ export default function MiniGame() {
                 cursor: "pointer",
               }}
             >
-              {item.text}
+              {/* Anti-cheat: text remains hidden until the square is genuinely dragged away */}
+              {(Math.abs(item.x - item.text_x) > 20 || Math.abs(item.y - item.text_y) > 20) ? item.text : "?"}
             </div>
 
             <div
