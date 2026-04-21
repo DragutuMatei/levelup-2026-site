@@ -38,7 +38,7 @@ export const echipaData = [
     },
     {
         name: "Petre Ioan Iulian",
-        role: "Coodonator Logistica",
+        role: "Responsabil Logistica",
         email: "iulian.petre@osfiir.ro",
         photo: iulian
     },
